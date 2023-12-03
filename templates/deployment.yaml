@@ -1,1 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Release.Name}}-deploy
+spec:
+  replicas: {{.Values.replicaCount}}
+  selector:
+    matchLabels:
+      app: {{.Release.Name}}-app1
+  template:
+    metadata:
+      labels:
+        app: {{.Release.Name}}-app1
+    spec:
+      containers:
+       {{- range .Values.containers }}
+        - image: {{.image}}
+          name: {{.name}}-nginx
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 10m
+              memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        {{- end }}
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+  volumes:
+    - name: config-volume
+      configMap:
+        name: {{.Release.Name}}-configmap
+---
 
